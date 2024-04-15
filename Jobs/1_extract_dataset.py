@@ -9,13 +9,13 @@ pipeline_dir = os.path.join(current_dir, "..")
 
 data_dir = os.path.join(pipeline_dir, "Data")
 
-spotify_dataset_url = "vatsalmavani/spotify-dataset"
+nba_dataset_url = "vszymonjwiak/nba-traditional"
 
-download_command = f"kaggle datasets download -d {spotify_dataset_url}"
+download_command = f"kaggle datasets download -d {nba_dataset_url}"
 
 subprocess.run(download_command, shell=True, cwd=data_dir)
 
-zip_file_name = f"{spotify_dataset_url.split('/')[1]}.zip"
+zip_file_name = f"{nba_dataset_url.split('/')[1]}.zip"
 
 zip_file_path = os.path.join(data_dir, zip_file_name)
 
@@ -24,4 +24,4 @@ with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
 
 os.remove(zip_file_path)
 
-print("Conjunto de dados do Spotify baixado e extraído com sucesso!")
+print("Conjunto de dados do nba baixado e extraído com sucesso!")
