@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15.3
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: pipeline_dados
