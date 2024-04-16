@@ -29,7 +29,7 @@ def run_script(script_path):
         return e 
     
 def run_jobs():
-    script_directory = "jobs"
+    script_directory = "Jobs"
     scripts_to_run = [f for f in os.listdir(script_directory) if f.endswith('.py')]
 
     for script_name in scripts_to_run:
@@ -41,10 +41,11 @@ def run_jobs():
             return False
         else:
             print(f"\033[1;32mScript {script_name} executed successfully.\033[0m")
-            return True
+    
+    return True
         
 if __name__ == "__main__":
-    os.system("cls")
+    #os.system("cls")
     if install_requirements() and run_docker_compose() and run_jobs():
         print(f"\033[1;32mAll commands executed successfully.\033[0m")
     else:
