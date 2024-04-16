@@ -9,7 +9,7 @@ pipeline_dir = os.path.join(current_dir, "..")
 
 data_dir = os.path.join(pipeline_dir, "Data")
 
-nba_dataset_url = "vszymonjwiak/nba-traditional"
+nba_dataset_url = "szymonjwiak/nba-traditional"
 
 download_command = f"kaggle datasets download -d {nba_dataset_url}"
 
