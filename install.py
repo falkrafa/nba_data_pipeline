@@ -29,7 +29,7 @@ def run_script(script_path):
         return e 
     
 def run_jobs():
-    script_directory = "Jobs"
+    script_directory = "jobs"
     scripts_to_run = [f for f in os.listdir(script_directory) if f.endswith('.py')]
 
     for script_name in scripts_to_run:
