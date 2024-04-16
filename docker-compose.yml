@@ -8,15 +8,3 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_DB: pipeline_dados
-
-  metabase:
-    image: metabase/metabase:latest
-    ports:
-      - 3000:3000
-    environment:
-      MB_DB_TYPE: postgres
-      MB_DB_DBNAME: pipeline_dados
-      MB_DB_PORT: 5432
-      MB_DB_USER: postgres
-      MB_DB_PASS: root
-      MB_DB_HOST: db
