@@ -56,15 +56,24 @@ def insert_data(conn, data, column_names, batch_size=100000):
             VALUES (%s, %s, %s, %s) RETURNING id
         """
         insert_performance_query = """
-            INSERT INTO performance_dimension (player, game_id, playerid, Min_played, PTS, FGM, FGA)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO performance_dimension (player, game_id, playerid, min_played, PTS, FGM, FGA)
+            VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id
         """
         insert_team_query = """
-            INSERT INTO team_dimension (team, home, away, game_id)
-            VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id
+            INSERT INTO team_dimension (team, home, away, game_id, player_id)
+            VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id
         """
         insert_outcome_query = """
             INSERT INTO outcome_dimension (game_id, win, plus_minus)
+            VALUES (%s, %s, %s)
+        """
+
+        insert_performance_fact_query = """
+            INSERT INTO performance_fact (game_id, player_id, minutes_played, points_scored, field_goals_made, field_goals_attempted)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        insert_outcome_fact_query = """
+            INSERT INTO outcome_fact (game_id, win, plus_minus)
             VALUES (%s, %s, %s)
         """
         
@@ -72,6 +81,8 @@ def insert_data(conn, data, column_names, batch_size=100000):
         performance_insert_count = 0
         team_insert_count = 0
         outcome_insert_count = 0
+        performance_fact_insert_count = 0
+        outcome_fact_insert_count = 0
 
         try:
             for index, row in enumerate(data): # 700 K
@@ -88,25 +99,35 @@ def insert_data(conn, data, column_names, batch_size=100000):
 
                 # Performance Dimension Insert
                 cursor.execute(insert_performance_query, (row_values['player'], game_dimension_id, row_values.get('playerid'), row_values.get('Min_played'), row_values.get('PTS'), row_values.get('FGM'), row_values.get('FGA')))
+                performance_dimension_id = cursor.fetchone()[0]  # Obtenha o ID retornado pela operação RETURNING id
                 performance_insert_count += 1
 
                 # Team Dimension Insert
-                if row_values['team'] not in existing_team_ids: # O(n)
-                    cursor.execute(insert_team_query, (row_values['team'], row_values['home'], row_values['away'], game_dimension_id))
-                    result = cursor.fetchone()
-                    if result:
-                        team_id = result[0]
-                        existing_team_ids[row_values['team']] = team_id
-                        team_insert_count += 1
+                cursor.execute(insert_team_query, (row_values['team'], row_values['home'], row_values['away'], game_dimension_id, performance_dimension_id))
+                result = cursor.fetchone()
+                if result:
+                    team_id = result[0]
+                    existing_team_ids[row_values['team']] = team_id
+                    team_insert_count += 1
 
                 # Outcome Dimension Insert
                 cursor.execute(insert_outcome_query, (game_dimension_id, row_values.get('win', False), row_values.get('+/-')))
                 outcome_insert_count += 1
 
+                #fato performance insert
+
+                cursor.execute(insert_performance_fact_query, (game_dimension_id, performance_dimension_id, row_values.get('Min_played'), row_values.get('PTS'), row_values.get('FGM'), row_values.get('FGA')))
+                performance_fact_insert_count += 1
+
+                 # Outcome Fact Insert
+                cursor.execute(insert_outcome_fact_query, (game_dimension_id, row_values.get('win', False), row_values.get('+/-')))
+                outcome_fact_insert_count += 1
+                
                 # Commit transaction after every batch_size iterations
                 if (index + 1) % batch_size == 0:
                     conn.commit()
                     print(f"Processed {index+1} rows; Total games inserted: {game_insert_count}, Total performances inserted: {performance_insert_count}, Total teams inserted: {team_insert_count}, Total outcomes inserted: {outcome_insert_count}")
+
 
             # Commit any remaining transactions
             conn.commit()
