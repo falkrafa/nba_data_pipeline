@@ -1,8 +1,7 @@
 CREATE TABLE IF NOT EXISTS outcome_dimension (
-    gameid VARCHAR(255) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    game_id INT,  -- Use game_id here for foreign key reference
     win BOOLEAN,
-    plus_minus INTEGER,
-    teamid VARCHAR(255),
-    FOREIGN KEY (gameid) REFERENCES game_dimension(gameid),
-    FOREIGN KEY (teamid) REFERENCES team_dimension(teamid)
-)
+    plus_minus INTEGER,  
+    FOREIGN KEY (game_id) REFERENCES game_dimension(id)  -- Reference the primary key of game_dimension
+);
